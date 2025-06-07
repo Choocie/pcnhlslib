@@ -1,0 +1,110 @@
+
+#include "caloclusternet.h"
+
+void caloclusternet(int &numEvents,
+                    hls::stream<array<model_input_t, MODEL_INPUT_WIDTH>>  inputStream[PAR],
+                    hls::stream<array<model_output_t, MODEL_OUTPUT_WIDTH>> outputStream[PAR],
+                    hls::stream<bool> lastStream[PAR],
+                    hls::stream<int> &numStream,
+                    int &betaThreshold,
+                    int &isolationThreshold) {
+    #pragma HLS stable variable=numEvents
+    #pragma HLS interface mode=s_axilite port=numEvents
+    #pragma HLS stable variable=betaThreshold
+    #pragma HLS interface mode=s_axilite port=betaThreshold
+    #pragma HLS stable variable=isolationThreshold
+    #pragma HLS interface mode=s_axilite port=isolationThreshold
+    #pragma HLS INTERFACE mode=axis port=inputStream
+    #pragma HLS INTERFACE mode=axis port=outputStream 
+    #pragma HLS INTERFACE mode=axis port=lastStream 
+    #pragma HLS INTERFACE mode=axis port=numStream
+
+    assert(numEvents > 0);
+    for(int e = 0; e < numEvents; e++) {
+    #pragma HLS dataflow
+    caloclusternetv2<model_input_t,
+            dense_relu_t,
+            dense_weight_t,
+            dense_biases_t,
+            dense_accum_t,
+            gravnet_relu_t,
+            gravnet_weight_t,
+            gravnet_biases_t,
+            gravnet_accum_t,
+            gravnet_coordinate_t,
+            gravnet_feature_t,
+            gravnet_distance_t,
+            gravnet_exponential_t,
+            gravnet_data_t,
+            model_output_t,
+            cps_beta_t,
+            cps_distance_t,
+            cps_identifier_t,
+            MODEL_INPUT_WIDTH,
+            DENSE_1_OUTPUT_WIDTH,
+            DENSE_2_OUTPUT_WIDTH,
+            DENSE_3_OUTPUT_WIDTH,
+            GRAVNET_1_OUTPUT_WIDTH,
+            DENSE_4_OUTPUT_WIDTH,
+            DENSE_5_OUTPUT_WIDTH,
+            DENSE_6_OUTPUT_WIDTH,
+            DENSE_7_OUTPUT_WIDTH,
+            DENSE_8_OUTPUT_WIDTH,
+            GRAVNET_2_OUTPUT_WIDTH,
+            DENSE_9_OUTPUT_WIDTH,
+            DENSE_10_OUTPUT_WIDTH,
+            DENSE_11_OUTPUT_WIDTH,
+            DENSE_SCALE_OUTPUT_WIDTH,
+            MODEL_OUTPUT_WIDTH,
+            GRAVNET_1_K,
+            GRAVNET_2_K,
+            N,
+            PAR,
+            II,
+            BETA_WIDTH,
+            ENERGY_WIDTH,
+            TPOS_WIDTH,
+            SIGNAL_WIDTH,
+            CCORDS_WIDTH,
+            BETA_OFFSET>(inputStream,
+                        outputStream,
+                        lastStream,
+                        numStream,
+                        betaThreshold,
+                        isolationThreshold,
+                        dense1Weights,
+                        dense1Biases,
+                        dense2Weights,
+                        dense2Biases,
+                        dense3Weights,
+                        dense3Biases,
+                        dense4Weights,
+                        dense4Biases,
+                        dense5Weights,
+                        dense5Biases,
+                        dense6Weights,
+                        dense6Biases,
+                        dense7Weights,
+                        dense7Biases,
+                        dense8Weights,
+                        dense8Biases,
+                        dense9Weights,
+                        dense9Biases,
+                        dense10Weights,
+                        dense10Biases,
+                        dense11Weights,
+                        dense11Biases,
+                        denseScaleWeights,
+                        denseScaleBiases,
+                        tposWeights,
+                        tposBiases,
+                        ccordsWeights,
+                        ccordsBiases,
+                        betaWeights,
+                        betaBiases,
+                        energyWeights,
+                        energyBiases,
+                        signalWeights,
+                        signalBiases);
+    }
+}

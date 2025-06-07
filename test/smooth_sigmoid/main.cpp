@@ -1,0 +1,43 @@
+#include <iostream>
+#include "hls_stream.h"
+#include "dut.h"
+
+using std::array;
+
+int main() 
+{
+    
+    hls::stream<array<input_t,F>> inputStream;
+    hls::stream<array<output_t,F>> outputStream;
+
+    array<input_t,F> stimuli = {-2.0, 1.25, -0.0625, 7.0};
+    inputStream.write(stimuli);
+
+
+    array<output_t,F> golden = {0.125, 0.6875, 0.4375, 1.0};
+
+
+    array<output_t,F> output;
+
+    dut(inputStream, outputStream);
+
+
+    outputStream.read(output);
+
+    std::cout << "Output Array: " << std::endl;
+    bool test_passed = true;
+    for (int i = 0; i < F; i++) {
+        std::cout << "Got: " << output[i] << " Expected: " << golden[i] << std::endl;
+        if (output[i] != golden[i]) {
+            test_passed = false;
+        }
+    }
+
+    if (test_passed) {
+        std::cout << "Test PASSED!" << std::endl;
+    } else {
+        std::cout << "Test FAILED!" << std::endl;
+    }
+
+    return 0;
+}
